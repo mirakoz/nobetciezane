@@ -130,7 +130,9 @@ export default function Page() {
                 });
 
                 // Sort pharmacies by distance (closest first)
-                pharmacyList.sort((a, b) => a.distance - b.distance);
+                pharmacyList.sort((a: { distance: string }, b: { distance: string }) =>
+                    parseFloat(a.distance) - parseFloat(b.distance)
+                );
 
                 setPharmacies(pharmacyList);
             } else {
