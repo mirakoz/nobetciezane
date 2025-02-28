@@ -27,11 +27,11 @@ const GoogleAd: React.FC<{ slot: string; format?: string; responsive?: boolean; 
             // Initialize ads when component mounts
             (window as any).adsbygoogle = (window as any).adsbygoogle || [];
             (window as any).adsbygoogle.push({});
-
-        // } catch (error) {
+        } catch (error) {
             console.error('AdSense error:', error);
         }
     }, []);
+
 
     return (
         <div className={`ad-container ${className} mx-auto overflow-hidden`} data-oid="l3wb_5-">
