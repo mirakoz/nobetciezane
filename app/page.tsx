@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
 // Function to calculate distance between two coordinates using Haversine formula
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
     var R = 6371; // Earth's radius (km)
     var dLat = (lat2 - lat1) * (Math.PI / 180);
     var dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -16,7 +16,7 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
             Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // Distance in km
-    return d.toFixed(1); // Show 1 decimal place
+    return d.toFixed(1) as unknown as number; // Show 1 decimal place
 }
 
 // Google AdSense component
