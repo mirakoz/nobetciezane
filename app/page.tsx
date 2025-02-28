@@ -20,12 +20,15 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
 }
 
 // Google AdSense component
-const GoogleAd = ({ slot, format, responsive, style, className }) => {
+const GoogleAd: React.FC<{ slot: string; format?: string; responsive?: boolean; style?: React.CSSProperties; className?: string }> = ({ slot, format, responsive, style, className }) => {  
+
     useEffect(() => {
         try {
             // Initialize ads when component mounts
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (error) {
+            (window as any).adsbygoogle = (window as any).adsbygoogle || [];
+            (window as any).adsbygoogle.push({});
+
+        // } catch (error) {
             console.error('AdSense error:', error);
         }
     }, []);
@@ -53,6 +56,15 @@ const AdSizes = {
     RESPONSIVE: { display: 'block' },
 };
 
+// Define a type for the pharmacy object
+type Pharmacy = {
+    pharmacyName: string;
+    address: string;
+    phone: string;
+    latitude: number;
+    longitude: number;
+};
+
 export default function Page() {
     // Load AdSense script
     useEffect(() => {
@@ -76,10 +88,10 @@ export default function Page() {
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
 
-    const fetchPharmacies = async (latitude, longitude) => {
+    const fetchPharmacies = async (latitude: number, longitude: number) => {
         try {
             const apiUrl = `https://www.nosyapi.com/apiv2/service/pharmacies-on-duty/locations?latitude=${latitude}&longitude=${longitude}`;
-
+            
             const response = await fetch(apiUrl, {
                 method: 'GET',
                 headers: {
@@ -97,7 +109,7 @@ export default function Page() {
 
             if (data && data.data) {
                 // Transform API response to our pharmacy format
-                const pharmacyList = data.data.map((pharmacy) => {
+                const pharmacyList = data.data.map((pharmacy: Pharmacy) => {
                     // Calculate distance using Haversine formula
                     const calculatedDistance = getDistanceFromLatLonInKm(
                         latitude,
@@ -112,17 +124,13 @@ export default function Page() {
                         phone: pharmacy.phone,
                         latitude: pharmacy.latitude,
                         longitude: pharmacy.longitude,
-                        distance: `${calculatedDistance} km`,
+                        distance: calculatedDistance,
                         isOpen: true,
                     };
                 });
 
                 // Sort pharmacies by distance (closest first)
-                pharmacyList.sort((a, b) => {
-                    const distA = parseFloat(a.distance);
-                    const distB = parseFloat(b.distance);
-                    return distA - distB;
-                });
+                pharmacyList.sort((a, b) => a.distance - b.distance);
 
                 setPharmacies(pharmacyList);
             } else {
@@ -236,16 +244,12 @@ export default function Page() {
 
                 return {
                     ...pharmacy,
-                    distance: `${distance} km`,
+                    distance: distance,
                 };
             });
 
             // Sort by distance
-            pharmaciesWithDistance.sort((a, b) => {
-                const distA = parseFloat(a.distance);
-                const distB = parseFloat(b.distance);
-                return distA - distB;
-            });
+            pharmaciesWithDistance.sort((a, b) => a.distance - b.distance);
 
             setPharmacies(pharmaciesWithDistance);
             setLocation({ latitude: userLat, longitude: userLon });
@@ -546,7 +550,7 @@ export default function Page() {
                                                         data-oid="6bshc_u"
                                                     />
                                                 </svg>
-                                                {pharmacy.distance}
+                                                {pharmacy.distance.toFixed(1)} km
                                             </span>
                                         </div>
 
