@@ -16,15 +16,19 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
             Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // Distance in km
-    return d.toFixed(1) as unknown as number; // Show 1 decimal place
+    return parseFloat(d.toFixed(1)); // Return as number with 1 decimal place
 }
 
 // Google AdSense component
-const GoogleAd: React.FC<{ slot: string; format?: string; responsive?: boolean; style?: React.CSSProperties; className?: string }> = ({ slot, format, responsive, style, className }) => {  
-
+const GoogleAd: React.FC<{
+    slot: string;
+    format?: string;
+    responsive?: boolean;
+    style?: React.CSSProperties;
+    className?: string;
+}> = ({ slot, format, responsive, style, className }) => {
     useEffect(() => {
         try {
-            // Initialize ads when component mounts
             (window as any).adsbygoogle = (window as any).adsbygoogle || [];
             (window as any).adsbygoogle.push({});
         } catch (error) {
@@ -32,9 +36,8 @@ const GoogleAd: React.FC<{ slot: string; format?: string; responsive?: boolean; 
         }
     }, []);
 
-
     return (
-        <div className={`ad-container ${className} mx-auto overflow-hidden`} data-oid="l3wb_5-">
+        <div className={`ad-container ${className ? className : ''} mx-auto overflow-hidden`} data-oid="l3wb_5-">
             <ins
                 className="adsbygoogle"
                 style={style}
@@ -79,10 +82,11 @@ export default function Page() {
 
         loadAdSenseScript();
     }, []);
-    const [location, setLocation] = useState(null);
-    const [pharmacies, setPharmacies] = useState([]);
+
+    const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [pharmacies, setPharmacies] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     const [manualLocationMode, setManualLocationMode] = useState(false);
     const [selectedCity, setSelectedCity] = useState('');
@@ -124,14 +128,14 @@ export default function Page() {
                         phone: pharmacy.phone,
                         latitude: pharmacy.latitude,
                         longitude: pharmacy.longitude,
-                        distance: calculatedDistance,
+                        distance: calculatedDistance, // number
                         isOpen: true,
                     };
                 });
 
                 // Sort pharmacies by distance (closest first)
-                pharmacyList.sort((a: { distance: string }, b: { distance: string }) =>
-                    parseFloat(a.distance) - parseFloat(b.distance)
+                pharmacyList.sort((a: { distance: number }, b: { distance: number }) =>
+                    a.distance - b.distance
                 );
 
                 setPharmacies(pharmacyList);
@@ -193,9 +197,8 @@ export default function Page() {
         // In a real app, you would make an API call with city/district parameters
         setTimeout(() => {
             // Mock user location based on selected city/district
-            let userLat, userLon;
+            let userLat: number, userLon: number;
 
-            // Set approximate coordinates based on selected city
             if (selectedCity === 'İstanbul') {
                 userLat = 41.0082;
                 userLon = 28.9784;
@@ -207,7 +210,6 @@ export default function Page() {
                 userLon = 29.0;
             }
 
-            // Mock pharmacy data with calculated distances
             const mockPharmacies = [
                 {
                     name: 'Ada Eczanesi',
@@ -235,7 +237,6 @@ export default function Page() {
                 },
             ];
 
-            // Calculate distances for mock pharmacies
             const pharmaciesWithDistance = mockPharmacies.map((pharmacy) => {
                 const distance = getDistanceFromLatLonInKm(
                     userLat,
@@ -243,14 +244,12 @@ export default function Page() {
                     pharmacy.latitude,
                     pharmacy.longitude,
                 );
-
                 return {
                     ...pharmacy,
-                    distance: distance,
+                    distance: distance, // number
                 };
             });
 
-            // Sort by distance
             pharmaciesWithDistance.sort((a, b) => a.distance - b.distance);
 
             setPharmacies(pharmaciesWithDistance);
@@ -261,23 +260,14 @@ export default function Page() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white" data-oid="eo8o56k">
-            <div
-                className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12"
-                data-oid="-qkieb5"
-            >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12" data-oid="-qkieb5">
                 {!pharmacies.length ? (
                     <div className="text-center space-y-10" data-oid="u-kupu.">
                         <div className="space-y-4" data-oid="yeczz5w">
-                            <h1
-                                className="text-5xl md:text-6xl font-extrabold text-blue-900 mb-4 animate-fade-in tracking-tight"
-                                data-oid="m3mqyra"
-                            >
+                            <h1 className="text-5xl md:text-6xl font-extrabold text-blue-900 mb-4 animate-fade-in tracking-tight" data-oid="m3mqyra">
                                 Nöbetçi Eczane Bul
                             </h1>
-                            <p
-                                className="text-xl md:text-2xl text-blue-700 mb-8 max-w-2xl mx-auto"
-                                data-oid="rf.btdq"
-                            >
+                            <p className="text-xl md:text-2xl text-blue-700 mb-8 max-w-2xl mx-auto" data-oid="rf.btdq">
                                 Size en yakın nöbetçi eczaneleri anında görüntüleyin.
                             </p>
                         </div>
@@ -292,28 +282,9 @@ export default function Page() {
                                 >
                                     {loading ? (
                                         <span className="flex items-center" data-oid="xt28h8g">
-                                            <svg
-                                                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                data-oid="7.-oafr"
-                                            >
-                                                <circle
-                                                    className="opacity-25"
-                                                    cx="12"
-                                                    cy="12"
-                                                    r="10"
-                                                    stroke="currentColor"
-                                                    strokeWidth="4"
-                                                    data-oid="lx_r8y2"
-                                                ></circle>
-                                                <path
-                                                    className="opacity-75"
-                                                    fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                    data-oid="1:inqgp"
-                                                ></path>
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" data-oid="7.-oafr">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" data-oid="lx_r8y2"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" data-oid="1:inqgp"></path>
                                             </svg>
                                             Konum Alınıyor...
                                         </span>
@@ -323,27 +294,16 @@ export default function Page() {
                                 </button>
 
                                 <div data-oid="6.o2224">
-                                    <button
-                                        onClick={() => setManualLocationMode(true)}
-                                        className="text-blue-600 hover:text-blue-800 font-medium underline"
-                                        data-oid="eui-:ek"
-                                    >
+                                    <button onClick={() => setManualLocationMode(true)} className="text-blue-600 hover:text-blue-800 font-medium underline" data-oid="eui-:ek">
                                         Manuel konum seçmek istiyorum
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             <div className="space-y-6 max-w-md mx-auto" data-oid="7:dr_su">
-                                <div
-                                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                                    data-oid="-7cw1sp"
-                                >
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-oid="-7cw1sp">
                                     <div data-oid="o_9fw.a">
-                                        <label
-                                            htmlFor="city"
-                                            className="block text-sm font-medium text-gray-700 mb-1 text-left"
-                                            data-oid="m0enc79"
-                                        >
+                                        <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1 text-left" data-oid="m0enc79">
                                             Şehir
                                         </label>
                                         <select
@@ -375,11 +335,7 @@ export default function Page() {
                                     </div>
 
                                     <div data-oid="e05mf1w">
-                                        <label
-                                            htmlFor="district"
-                                            className="block text-sm font-medium text-gray-700 mb-1 text-left"
-                                            data-oid="73c4clj"
-                                        >
+                                        <label htmlFor="district" className="block text-sm font-medium text-gray-700 mb-1 text-left" data-oid="73c4clj">
                                             İlçe
                                         </label>
                                         <select
@@ -422,7 +378,6 @@ export default function Page() {
                                                     </option>
                                                 </>
                                             )}
-                                            {/* Add more cities and districts as needed */}
                                         </select>
                                     </div>
                                 </div>
@@ -489,47 +444,29 @@ export default function Page() {
                         </div>
                     </div>
                 ) : loading ? (
-                    <div
-                        className="flex flex-col items-center justify-center py-20"
-                        data-oid=":m4ntsl"
-                    >
-                        <div
-                            className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"
-                            data-oid="hhgpi80"
-                        ></div>
+                    <div className="flex flex-col items-center justify-center py-20" data-oid=":m4ntsl">
+                        <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" data-oid="hhgpi80"></div>
                         <p className="text-xl text-blue-700 font-medium" data-oid="v7w7h94">
                             Nöbetçi eczaneler aranıyor...
                         </p>
                     </div>
                 ) : (
                     <div data-oid=":-qem9o">
-                        <h2
-                            className="text-3xl md:text-4xl font-bold text-blue-900 mb-8 text-center"
-                            data-oid="_je1-nm"
-                        >
+                        <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-8 text-center" data-oid="_je1-nm">
                             Yakınınızdaki Nöbetçi Eczaneler
                         </h2>
 
-                        <div
-                            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-                            data-oid="az1k8mf"
-                        >
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-oid="az1k8mf">
                             {pharmacies.map((pharmacy, index) => {
-                                // Insert ad after every 3 pharmacies
+                                // Insert ad after every 3 pharmacy cards
                                 const pharmacyCard = (
                                     <div
                                         key={`pharmacy-${index}`}
                                         className="bg-white rounded-xl shadow-lg p-6 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100"
                                         data-oid="rad_q:9"
                                     >
-                                        <div
-                                            className="flex justify-between items-start mb-3"
-                                            data-oid="ks_61v5"
-                                        >
-                                            <h3
-                                                className="text-xl font-bold text-blue-800"
-                                                data-oid="dktpg02"
-                                            >
+                                        <div className="flex justify-between items-start mb-3" data-oid="ks_61v5">
+                                            <h3 className="text-xl font-bold text-blue-800" data-oid="dktpg02">
                                                 {pharmacy.name}
                                             </h3>
                                             <span
@@ -606,7 +543,6 @@ export default function Page() {
                                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
                                                         data-oid="00d0aq8"
                                                     />
-
                                                     <path
                                                         strokeLinecap="round"
                                                         strokeLinejoin="round"
