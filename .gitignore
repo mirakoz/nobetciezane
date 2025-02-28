@@ -1,6 +1,7 @@
 node_modules/
 out/
 .next/
+.next-prod/
 .env
 .DS_Store
 
